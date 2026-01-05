@@ -1,5 +1,7 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import java.io.IOException;
+
 public class DemosPlaywright {
     public static void main(String[] args) {
         //Role, Context and goal
@@ -10,7 +12,12 @@ public class DemosPlaywright {
         System.out.println(newVector[0]);
 
         //Lets try to add now the requested libraries
-        Document doc = Jsoup.connect("https://example.com").get();
-        System.out.println(doc.title());
+        // JSoup con manejo de excepciones
+        try {
+            Document doc = Jsoup.connect("https://example.com").get();
+            System.out.println("Título de la página: " + doc.title());
+        } catch (IOException e) {
+            System.out.println("Error al conectar: " + e.getMessage());
+        }
     }
 }
