@@ -14,4 +14,6 @@ We could use n8n for automatized searchs with the Serper API
 
 Lets now work with JmesPath Dependency --> Add to pom.xml and try
 
-Testing all the endpoints on Serper
+Testing all the endpoints on Serper.
+
+Now try to use Google Dorks On Serper API Search
