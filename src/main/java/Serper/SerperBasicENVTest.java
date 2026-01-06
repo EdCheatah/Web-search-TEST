@@ -1,5 +1,7 @@
+package Serper;
+
 //import io.github.cdimascio.dotenv.Dotenv;
-public class SerperBasicTest {
+public class SerperBasicENVTest {
     public static void main(String[] args) {
       //  Dotenv dotenv = Dotenv.load();
         //String apiKey = dotenv.get("SERPER_SEARCH_API_KEY");
