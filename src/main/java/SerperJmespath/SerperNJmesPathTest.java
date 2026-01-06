@@ -16,7 +16,8 @@ public class SerperNJmesPathTest {
 
         // Buscar
         HttpClient client = HttpClient.newHttpClient();
-        String jsonBody = "{\"q\":\"Java programming\"}";
+        String query = "site:instagram.com intext:willyrex";
+        String jsonBody = "{\"q\":\"" + query + "\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://google.serper.dev/search"))
@@ -34,7 +35,7 @@ public class SerperNJmesPathTest {
 
         // Extraer títulos
         JsonNode titulos = jmespath.compile("organic[*].title").search(json);
-        System.out.println("Títulos:");
+        System.out.println("Tittles:");
         System.out.println(titulos);
 
         // Extraer top 3 con snippet
