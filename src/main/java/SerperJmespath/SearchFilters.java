@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.burt.jmespath.JmesPath;
+import io.burt.jmespath.jackson.JacksonRuntime;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -11,12 +13,18 @@ import java.util.regex.Pattern;
 import java.util.Locale;
 
 /**
- * SearchFilters:
- * - cleanQuery(originalQuery) -> devuelve la query "safe" para enviar a Serper (quita intext:, allintext:, comillas problemáticas, pero conserva site: y filetype:)
- * - filterResults(organic, originalQuery) -> filtra el array 'organic' devuelto por Serper, aplicando estrictamente la intención original.
+ * SearchFilters (con JMESPath)
+ *
+ * - cleanQuery(originalQuery): construye la safeQuery para enviar a Serper
+ * - filterResults(organic, originalQuery): filtra un ArrayNode 'organic' ya obtenido
+ * - filterResultsFromRoot(serperRoot, originalQuery): usa JMESPath para extraer organic[] proyectado y filtra
  */
 public class SearchFilters {
     private static final ObjectMapper M = new ObjectMapper();
+    private static final JmesPath<JsonNode> JMES = new JacksonRuntime();
+
+    // JMESPath expression to project only the fields we care about from organic
+    private static final String ORGANIC_PROJECTION = "organic[].{title: title, link: link, snippet: snippet, date: date}";
 
     // Patterns
     private static final Pattern INTEXT_QUOTED = Pattern.compile("(?i)intext:\\s*\"([^\"]+)\"");
@@ -28,7 +36,7 @@ public class SearchFilters {
     private static final Pattern FILETYPE = Pattern.compile("(?i)filetype:([^\\s]+)");
 
     /**
-     * Devuelve una query "safe" para enviar a Serper: elimina los prefijos problemáticos (intext:, allintext:, comillas),
+     * Devuelve una query "safe" para enviar a Serper: elimina prefijos problemáticos (intext:, allintext:, comillas),
      * pero mantiene site: y filetype: si están.
      */
     public static String cleanQuery(String originalQuery) {
@@ -84,6 +92,8 @@ public class SearchFilters {
     /**
      * Filtra estrictamente el array 'organic' según la intención expresada en originalQuery.
      * Devuelve ArrayNode con {title, link, snippet, date} de los que PASARON todos los filtros.
+     *
+     * Esta es la versión idéntica a la que ya tenías: recibe el array 'organic'.
      */
     public static ArrayNode filterResults(JsonNode organic, String originalQuery) {
         ArrayNode out = M.createArrayNode();
@@ -115,6 +125,29 @@ public class SearchFilters {
         }
 
         return out;
+    }
+
+    /**
+     * Nueva conveniencia: recibe el JSON raíz devuelto por Serper, usa JMESPath para proyectar
+     * organic[].{title,link,snippet,date} y luego llama a filterResults(...) para aplicar los filtros.
+     *
+     * Útil si llamas a Serper y tienes el JSON completo.
+     */
+    public static ArrayNode filterResultsFromRoot(JsonNode serperRoot, String originalQuery) {
+        if (serperRoot == null) return M.createArrayNode();
+
+        try {
+            JsonNode projected = JMES.compile(ORGANIC_PROJECTION).search(serperRoot);
+            if (projected == null || !projected.isArray()) {
+                // nothing to filter
+                return M.createArrayNode();
+            }
+            return filterResults(projected, originalQuery);
+        } catch (Exception e) {
+            // en caso de error con JMESPath, fallback: intentar usar "organic" directo
+            JsonNode organic = serperRoot.path("organic");
+            return filterResults(organic, originalQuery);
+        }
     }
 
     // ---------------------- extractors ----------------------
@@ -224,5 +257,14 @@ public class SearchFilters {
         }
 
         return true;
+    }
+
+    // utility: pretty json of ArrayNode (opcional)
+    public static String toJsonString(ArrayNode arr) {
+        try {
+            return M.writerWithDefaultPrettyPrinter().writeValueAsString(arr);
+        } catch (Exception e) {
+            return "[]";
+        }
     }
 }
