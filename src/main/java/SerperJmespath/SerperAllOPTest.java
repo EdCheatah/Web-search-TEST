@@ -8,12 +8,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SerperAllOPTest:
  * - Llama a SearchFilters.cleanQuery(...) para obtener la safeQuery.
- * - Llama a la API de Serper con la safeQuery.
+ * - Llama a la API de Serper con la safeQuery Y location.
  * - Una vez obtenido el JSON crudo, delega a SearchFilters.filterResults(...) usando la query ORIGINAL para filtrar estrictamente.
  */
 public class SerperAllOPTest {
@@ -69,7 +70,15 @@ public class SerperAllOPTest {
     }
 
     private static JsonNode callSerper(String apiKey, String query) throws Exception {
-        String jsonBody = "{\"q\":\"" + escapeJson(query) + "\"}";
+        // Construir JSON con ObjectMapper (más limpio y seguro)
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("q", query);
+        requestBody.put("location", "United States");
+
+        String jsonBody = M.writeValueAsString(requestBody);
+
+        System.out.println("Request body: " + jsonBody);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://google.serper.dev/search"))
                 .header("X-API-KEY", apiKey)
@@ -96,7 +105,6 @@ public class SerperAllOPTest {
         return M.readTree(body);
     }
 
-    private static String escapeJson(String s) {
-        return s == null ? "" : s.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
+    // Método eliminado - ya no es necesario porque usamos ObjectMapper.writeValueAsString
+    // que maneja automáticamente el escape de JSON
 }
