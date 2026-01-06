@@ -19,5 +19,16 @@ Testing all the endpoints on Serper.
 Now try to use Google Dorks On Serper API Search
 or maybe filters if that doesnt work, ill search
 
+Operators not working:
+    
+    intext:tutorial Python
+    
+    allintext:machine learning basics
+
+    "artificial intelligence"
+    
+    site:github.com intext:"machine learning" filetype:md
+
 Anyway, ill try with SerpAPI (250 tokens per month)
 --> log: doesnt work
+
