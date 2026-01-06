@@ -17,6 +17,8 @@ public class SerperNJmesPathTest {
         // Buscar
         HttpClient client = HttpClient.newHttpClient();
         String query = "site:instagram.com intext:willyrex";
+        //Not working :c
+        //String query = "site:instagram.com intext:\"willyrex\"";
         String jsonBody = "{\"q\":\"" + query + "\"}";
 
         HttpRequest request = HttpRequest.newBuilder()
