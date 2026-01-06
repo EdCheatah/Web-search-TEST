@@ -17,3 +17,4 @@ Lets now work with JmesPath Dependency --> Add to pom.xml and try
 Testing all the endpoints on Serper.
 
 Now try to use Google Dorks On Serper API Search
+or maybe filters if that doesnt work, ill search
