@@ -9,3 +9,5 @@ Assigned API key on my User Path.
 Trying to use Serper API 
 
 Lets go now searching for some JmesPath tutorials.
+
+We could use n8n for automatized searchs with the Serper API
