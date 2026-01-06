@@ -20,6 +20,7 @@ public class SerperNJmesPathTest {
         //Not working :c
         //String query = "site:instagram.com intext:\"willyrex\"";
         String jsonBody = "{\"q\":\"" + query + "\"}";
+        //If this is not working, ill try to filter the results
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://google.serper.dev/search"))
